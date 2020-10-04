@@ -4,8 +4,7 @@ Red [
 	Version: 1.0.0
     Needs: 'View
 	Comments: {
-	This interpretor of Brainfuck detects infinite loops !
-	written in Rebol/Red very cool Language
+	interpretor of Brainfuck
 	}
 ]
 
@@ -59,21 +58,6 @@ verify: function [ p /local t [integer!] u [integer!] i [integer!] m [integer!] 
 ]
 
 
-test-infinite: function [ sc [integer!] sl [integer!] si [integer!] cc [integer!] cl [integer!] ci [integer!]][
-	either stackoverflow? [true][           ; depassement de la pile interne
-		either sl <> cl [false][            ; the length of input has changed ==> not yet an infinite loop
-			either ((cc = sc) and (si = ci)) [true][          ; neither the value of cells/1 nor the index of cells have changed since last time
-				either si <> ci [false][    ; the length of input doesn't change anymore, the value of cells/1 has changed, but there are still cases of infinite loop
-					di: sc - cc
-					either odd? di [false][
-						either odd? cc [true][false]
-					]
-				]
-			]
-		]
-	]
-]
-
 
 bf: function [
 	prog [string!]
@@ -86,17 +70,17 @@ bf: function [
 
 	ll: verify sprog
 	if (ll = none) [append out "Error in [] balance" break]
-
+	
 	append/dup cells 0 size
-
-
+	
 	while [ not tail? sprog ][
+	;	prin sprog/1 prin ":" prin cells/1 prin "."
 		switch sprog/1 [
 			#">" [ either tail? (next cells) [ cells: head cells      ] [ cells:   next cells    ] ]
 			#"<" [ either head? cells        [ cells: back tail cells ] [ cells:   back cells    ] ]
-			#"+" [ either cells/1 = 255      [ cells/1: 0             ] [ cells/1: cells/1 + 1   ] ]
-			#"-" [ either cells/1 = 0        [ cells/1: 255           ] [ cells/1: cells/1 - 1   ] ]
-
+			#"+" [ either cells/1 = 255      [ cells/1: 0             ] [ cells/1: cells/1 + 1   ] ch: true ]
+			#"-" [ either cells/1 = 0        [ cells/1: 255           ] [ cells/1: cells/1 - 1   ] ch: true ]
+			
 			#"." [ append out to-string to-char cells/1                             ]
 			#"," [ either tail? inin [none] [cells/1: to-integer take inin]         ]
 
@@ -106,11 +90,8 @@ bf: function [
 					append out "At(" append out form (index? sprog) append out "): Error in [] balance" break
 				][
 					either cells/1 = 0 [
-						loop (l - (index? sprog) - 1) [sprog: next sprog]
+						loop (l - (index? sprog)) [sprog: next sprog]
 					][
-						push cells/1
-						push (length? inin)
-						push (index? cells)
 					]
 				]
 			]
@@ -120,15 +101,12 @@ bf: function [
 					append out "At(" append out form (index? sprog) append out "): Error in [] balance" break
 				][
 					either cells/1 = 0 [
-						pop pop pop
 					][
-						zi: pop zl: pop  zc: pop
-						if  (test-infinite zc zl zi cells/1 (length? inin) (index? cells)) [append out "At(" append out form (index? sprog) append out "): Infinite loop detected" break]
-						loop ((index? sprog) - l + 1) [sprog: back sprog]
+						loop ((index? sprog) - l + 1 ) [sprog: back sprog]
 					]
 				]
 			]
-
+			
 		]
 		sprog: next sprog
 	]
@@ -149,10 +127,11 @@ view layout [
 			o/text: tmp/1
 			c/text: tmp/2
 		]]
-	i: area 900x100 wrap "+[+++[.<]>]>,[[>+>>+<<<-]>>++++++++[>++++<-]>.>>,]" font[name: "Consolas" size: 13]
+	i: area 900x100 wrap {>>+[->,>+<-------------------------------------------[+++++++++++++++++++++++++++++++++++++++++++<]>>]<->>>>>+[->,>+<-------------------------------------------------------------[+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++<]>>]<<<<[<+<]+[<+>-<<[>-]>]<<[<+<]>[>]<[[->+>+[>+<->>[<-]<]>>[>]<+[<]+[<+>-<<[>-]>]<<-<]+[>+<->>[<-]<]>>[>]<<-<[<]+[<+>-<<[>-]>]<<-<]+[>+<->>[<-]<]>>[------------------------------------------------>>]>-<<<[<<]++++++++++++++++++++++++++++++++++++++++++++++++[>>]<<<<[[>>->[>]>+>>>>>>>+<<<<<<<<<[<]><<]>+[>]>-[-<<[<]>+[>]>]>>>>>+>>>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++<[->-[>]<<]<[-<<<<<<<[<]+>----------<<+>[>]>>>>>>]<[-<<<<<<<[<]+[>]>>>>>]>>>[-]>[-]<<<<<<<<<<[<]><<]>>------------------------------------------------[++++++++++++++++++++++++++++++++++++++++++++++++.[-]]>>[.>>]++++++++++.
+	} font[name: "Consolas" size: 13]
 	return
 	text 100x100 "Input" font[size: 13]
-	h: area 900x100 wrap "ABCDEFGHIJKLMNOPQRSTUVWXYZ" font[name: "Consolas" size: 13]
+	h: area 900x100 wrap "572+953=" font[name: "Consolas" size: 13]
 	return
 	text 100x100 "Result" font[size: 13]
 	o: area 900x100 wrap "" font[name: "Consolas" size: 13]
