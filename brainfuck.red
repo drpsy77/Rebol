@@ -4,7 +4,7 @@ Red [
 	Version: 1.0.0
     Needs: 'View
 	Comments: {
-	This interpretor of Brainfuck detects initinte loops !
+	This interpretor of Brainfuck detects infinite loops !
 	written in Rebol/Red very cool Language
 	}
 ]
@@ -13,6 +13,9 @@ counterstack: []
 
 push: function [ a ][ append counterstack a ]
 pop: function [ ] [ take/last counterstack ]
+stackoverflow?: function [] [
+	either ((length? counterstack) > 30000) [true][false]
+]
 
 match: make object! [
 	ahead: function [
@@ -55,6 +58,23 @@ verify: function [ p /local t [integer!] u [integer!] i [integer!] m [integer!] 
 	either t = u [255 ** m * t][none]
 ]
 
+
+test-infinite: function [ sc [integer!] sl [integer!] si [integer!] cc [integer!] cl [integer!] ci [integer!]][
+	either stackoverflow? [true][           ; depassement de la pile interne
+		either sl <> cl [false][            ; the length of input has changed ==> not yet an infinite loop
+			either cc = sc [true][          ; the value of cells/1 hasn't changed since last time
+				either si <> ci [false][    ; the length of input doesn't change anymore, the value of cells/1 has changed, but there are still cases of infinite loop
+					di: sc - cc
+					either odd? di [false][
+						either odd? cc [true][false]
+					]		
+				]
+			]
+		]
+	]
+]
+
+
 bf: function [
 	prog [string!]
 	inin [string!]
@@ -90,6 +110,7 @@ bf: function [
 					][
 						push cells/1
 						push (length? inin)
+						push (index? cells)
 					]
 				]
 			]
@@ -99,10 +120,10 @@ bf: function [
 					append out "At(" append out form (index? sprog) append out "): Error in [] balance" break
 				][
 					either cells/1 = 0 [
-						pop pop
+						pop pop pop
 					][
-						zl: pop  zc: pop
-						if ((cells/1 = zc) and (zl = (length? inin))) [append out "At(" append out form (index? sprog) append out "): Inifinte loop detected" break]
+						zi: pop zl: pop  zc: pop
+						if  (test-infinite zc zl zi cells/1 (length? inin) (index? cells)) [append out "At(" append out form (index? sprog) append out "): Infinite loop detected" break]
 						loop ((index? sprog) - l + 1) [sprog: back sprog]
 					]
 				]
