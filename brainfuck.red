@@ -62,7 +62,7 @@ verify: function [ p /local t [integer!] u [integer!] i [integer!] m [integer!] 
 test-infinite: function [ sc [integer!] sl [integer!] si [integer!] cc [integer!] cl [integer!] ci [integer!]][
 	either stackoverflow? [true][           ; depassement de la pile interne
 		either sl <> cl [false][            ; the length of input has changed ==> not yet an infinite loop
-			either cc = sc [true][          ; the value of cells/1 hasn't changed since last time
+			either ((cc = sc) and (si = ci)) [true][          ; neither the value of cells/1 nor the index of cells have changed since last time
 				either si <> ci [false][    ; the length of input doesn't change anymore, the value of cells/1 has changed, but there are still cases of infinite loop
 					di: sc - cc
 					either odd? di [false][
