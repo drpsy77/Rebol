@@ -62,12 +62,12 @@ verify: function [ p /local t [integer!] u [integer!] i [integer!] m [integer!] 
 test-infinite: function [ sc [integer!] sl [integer!] si [integer!] cc [integer!] cl [integer!] ci [integer!]][
 	either stackoverflow? [true][           ; depassement de la pile interne
 		either sl <> cl [false][            ; the length of input has changed ==> not yet an infinite loop
-			either cc = sc [true][          ; the value of cells/1 hasn't changed since last time
+			either ((cc = sc) and (si = ci)) [true][          ; neither the value of cells/1 nor the index of cells have changed since last time
 				either si <> ci [false][    ; the length of input doesn't change anymore, the value of cells/1 has changed, but there are still cases of infinite loop
 					di: sc - cc
 					either odd? di [false][
 						either odd? cc [true][false]
-					]		
+					]
 				]
 			]
 		]
@@ -86,17 +86,17 @@ bf: function [
 
 	ll: verify sprog
 	if (ll = none) [append out "Error in [] balance" break]
-	
+
 	append/dup cells 0 size
 
-	
+
 	while [ not tail? sprog ][
 		switch sprog/1 [
 			#">" [ either tail? (next cells) [ cells: head cells      ] [ cells:   next cells    ] ]
 			#"<" [ either head? cells        [ cells: back tail cells ] [ cells:   back cells    ] ]
 			#"+" [ either cells/1 = 255      [ cells/1: 0             ] [ cells/1: cells/1 + 1   ] ]
 			#"-" [ either cells/1 = 0        [ cells/1: 255           ] [ cells/1: cells/1 - 1   ] ]
-			
+
 			#"." [ append out to-string to-char cells/1                             ]
 			#"," [ either tail? inin [none] [cells/1: to-integer take inin]         ]
 
@@ -128,7 +128,7 @@ bf: function [
 					]
 				]
 			]
-			
+
 		]
 		sprog: next sprog
 	]
