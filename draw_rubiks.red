@@ -135,22 +135,50 @@ Utiliser les flèches pour faire tourner le cube
 
 [Espace] pour faire pivoter la face en bas à droite vers la droite
 
-"i" pour réinitialiser le cube 
+"#" pour réinitialiser le cube 
 }
     canvas: base 800x700 white focus
     draw buf
-    on-key  [ probe event/key 
+    on-key  [ 
             switch event/key [
             right    [z ]
             left     [z z z]
             up       [x  ]
             down     [x x x ]
             #" "     [r]
-            #"i"     [init-cube]
+            #"#"     [init-cube]
+            
+            #"u"     [y y y r  y ]
+            #"i"     [ z r z z z]
+            #"t"     [ r]
+            #"j"     [y r y y l y z z z]
+            #"o"     [ z l z z r z y y y ]
+            #"r"     [l z z r z z x x x]
+            #","     [ y l y y y]
+            #"p"     [z z z l z ]
+            #"e"     [ z z l z z]
+            
+            #"U"     [y y y l y ]
+            #"I"     [ z l z z z]
+            #"T"     [ l]
+            #"J"     [y l y y r y z ]
+            #"O"     [ z r z z l z y  ]
+            #"R"     [r z z l z z x ]
+            #"?"     [ y r y y y]
+            #"P"     [z z z r z ]
+            #"E"     [ z z r z z]
+            
+            #"q"     [ ]
+            #"X"     [x]
+            #"Y"     [y]
+            #"Z"     [z]
+            #"x"     [x x x]
+            #"y"     [y y y]
+            #"z"     [z z z]
         ]
         clear buf
         append buf copy [line-width 3 pen gray] 
-        affiche-cube
+    ;    affiche-cube
         drawcube
     ]
 ]
